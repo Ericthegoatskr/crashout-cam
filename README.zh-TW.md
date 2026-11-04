@@ -1,5 +1,7 @@
 # Crashout Cam
 
+**[開啟 Crashout Cam](https://crashout-cam.boundlessforge.chatgpt.site)** — 點 **Start camera** 並允許鏡頭即可玩。
+
 [English documentation](README.md)
 
 介面預設為英文，右上角「繁中 / EN」可切換並記住選擇。
