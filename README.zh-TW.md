@@ -1,6 +1,6 @@
 # Crashout Cam
 
-**[開啟 Crashout Cam](https://crashout-cam.boundlessforge.chatgpt.site)** — 點 **Start camera** 並允許鏡頭即可玩。
+**[開啟 Crashout Cam](https://ericthegoatskr.github.io/crashout-cam/)** — 點 **Start camera** 並允許鏡頭即可玩。
 
 [English documentation](README.md)
 
@@ -11,6 +11,10 @@
 用 webcam 表情和手勢即時切換五張紅鳥迷因。**使用原圖，圖片上沒有字幕、框線或辨識關鍵點。**
 
 瀏覽器版和 Python 版都已實作。兩版共用 `dist/assets/`、模型和 `dist/config.json`，各自使用 MediaPipe Tasks 執行臉部及雙手辨識。
+
+## 網站發布
+
+主要公開網站改由個人帳號下的 **GitHub Pages** 託管。推送到 `main` 後，`.github/workflows/pages.yml` 會驗證辨識規則及模型檔案，再部署 `dist/`。Python、測試和本機環境檔案不會發布成網站內容。所有圖片、模型和 Worker 都使用相對網址，支援 `/crashout-cam/` 子路徑。
 
 ## 瀏覽器版
 

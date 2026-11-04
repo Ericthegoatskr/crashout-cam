@@ -4,11 +4,15 @@
 
 A webcam meme toy with five original images, no captions, and two working versions: browser + Python. English is the default; Traditional Chinese is available from the language button and remembered locally.
 
-**[Play Crashout Cam](https://crashout-cam.boundlessforge.chatgpt.site)** — open the link, click **Start camera**, and allow camera access.
+**[Play Crashout Cam](https://ericthegoatskr.github.io/crashout-cam/)** — open the link, click **Start camera**, and allow camera access.
 
 [繁體中文說明](README.zh-TW.md)
 
 **Source:** [Ericthegoatskr/crashout-cam](https://github.com/Ericthegoatskr/crashout-cam). The browser app is a static site; the Python app runs locally.
+
+## Hosting
+
+The primary public site is hosted on **GitHub Pages** under this GitHub account. Pushing to `main` runs `.github/workflows/pages.yml`, verifies the detection rules and model files, and deploys only `dist/`. Python files, tests, and local environment files are not published as website assets. All asset and worker URLs are relative, so the app works under `/crashout-cam/`.
 
 ## Browser
 
