@@ -1,0 +1,41 @@
+{
+  "holdMs": 0,
+  "lostFaceMs": 700,
+  "jawThreshold": 0.42,
+  "smileThreshold": 0.48,
+  "handDistance": 0.62,
+  "releaseRatio": 0.78,
+  "maxFps": 30,
+  "states": [
+    {
+      "id": "neutral",
+      "image": "assets/neutral.png",
+      "label": "Neutral",
+      "gesture": "Relax your face"
+    },
+    {
+      "id": "listen",
+      "image": "assets/listen.png",
+      "label": "All ears",
+      "gesture": "Hand by your ear"
+    },
+    {
+      "id": "overload",
+      "image": "assets/overload.png",
+      "label": "Overload",
+      "gesture": "Hold your head"
+    },
+    {
+      "id": "shock",
+      "image": "assets/shock.png",
+      "label": "Shocked",
+      "gesture": "Open your mouth"
+    },
+    {
+      "id": "happy",
+      "image": "assets/happy.png",
+      "label": "Happy",
+      "gesture": "Give us a smile"
+    }
+  ]
+}

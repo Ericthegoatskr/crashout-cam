@@ -1,0 +1,57 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Crashout Cam browser checks</title></head><body style="background:#171715;color:#eee;font:14px monospace"><h1>Browser checks · synthetic video only</h1><pre id="report">Running…</pre><iframe id="app" src="./index.html" style="width:1100px;height:800px;border:0"></iframe><script type="module">
+const report = document.querySelector('#report');
+const frame = document.querySelector('#app');
+const passed = [];
+function check(condition, message) { if (!condition) throw Error(message); passed.push(`PASS ${message}`); report.textContent = passed.join('\n'); }
+async function until(test, timeout = 60000) { const start = Date.now(); while (!test()) { if (Date.now() - start > timeout) throw Error('Timeout: ' + frame.contentDocument.querySelector('#status').textContent + ' / ' + frame.contentDocument.querySelector('#error').textContent); await new Promise(r => setTimeout(r, 100)); } }
+try {
+  await until(() => frame.contentDocument?.querySelectorAll('.reaction').length === 5);
+  const win = frame.contentWindow, doc = frame.contentDocument;
+  if (doc.documentElement.lang !== 'en') doc.querySelector('#language').click();
+  check(doc.documentElement.lang === 'en', 'English interface');
+  doc.querySelector('#language').click();
+  check(doc.documentElement.lang === 'zh-Hant' && doc.querySelector('#camera-toggle').textContent.includes('開啟鏡頭'), 'Traditional Chinese toggle');
+  doc.querySelector('#language').click();
+  check(doc.querySelector('#camera-toggle').textContent.includes('Start camera'), 'switch back to English');
+  const buttons = [...doc.querySelectorAll('.reaction')];
+  for (const button of buttons) {
+    button.click();
+    check(doc.querySelector('#meme').src.includes(button.dataset.state + '.png'), `preview ${button.dataset.state}`);
+  }
+  const canvas = document.createElement('canvas'); canvas.width = 640; canvas.height = 480;
+  const context = canvas.getContext('2d'); context.fillStyle = '#181818'; context.fillRect(0,0,640,480);
+  let stream;
+  Object.defineProperty(win.navigator.mediaDevices, 'getUserMedia', { configurable: true, value: async () => { stream = canvas.captureStream(30); return stream; } });
+  const timer = setInterval(() => { context.fillRect(0,0,640,480); }, 30);
+  doc.querySelector('#camera-toggle').click();
+  await until(() => doc.querySelector('#status').textContent === 'Keep your face in view');
+  check(true, 'real face + hand WASM models initialize and infer on synthetic video');
+  check(doc.querySelector('#meme').src.includes('neutral.png'), 'no face returns neutral');
+  check(buttons.every(b => b.disabled), 'manual preview disabled during camera inference');
+  doc.querySelector('#camera-toggle').click();
+  check(stream.getTracks().every(t => t.readyState === 'ended'), 'stop releases every video track');
+  check(!doc.querySelector('#camera').srcObject, 'stop detaches video');
+  doc.querySelector('#camera-toggle').click();
+  await until(() => doc.querySelector('#status').textContent === 'Keep your face in view');
+  check(true, 'camera and models restart successfully');
+  doc.querySelector('#camera-toggle').click();
+  Object.defineProperty(win.navigator.mediaDevices, 'getUserMedia', { configurable: true, value: async () => { throw new DOMException('Test denied', 'NotAllowedError'); } });
+  doc.querySelector('#camera-toggle').click();
+  await until(() => !doc.querySelector('#error').hidden);
+  check(doc.querySelector('#error').textContent.includes('permission'), 'permission denial has actionable message');
+  check(!doc.querySelector('#camera-toggle').disabled, 'permission denial remains retryable');
+  doc.querySelector('#language').click();
+  check(doc.querySelector('#error').textContent.includes('權限'), 'existing error translates without reload');
+  doc.querySelector('#language').click();
+  buttons[4].click(); check(doc.querySelector('#meme').src.includes('happy.png'), 'preview still works after camera error');
+  // A late camera permission resolution must not resurrect a cancelled session.
+  let release;
+  Object.defineProperty(win.navigator.mediaDevices, 'getUserMedia', { configurable: true, value: () => new Promise(resolve => { release = resolve; }) });
+  doc.querySelector('#camera-toggle').click(); doc.querySelector('#camera-toggle').click();
+  const late = canvas.captureStream(30); release(late);
+  await until(() => late.getTracks().every(t => t.readyState === 'ended'));
+  check(true, 'cancel while awaiting permission releases late stream');
+  clearInterval(timer);
+  report.textContent += '\nALL BROWSER CHECKS PASSED';
+} catch (error) { report.textContent += '\nFAIL ' + error.message; }
+</script></body></html>

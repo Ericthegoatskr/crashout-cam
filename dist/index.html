@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#131311">
+  <meta name="description" content="Mentally? This bird. Five meme reactions, controlled by your camera. No captions.">
+  <title>Crashout Cam</title>
+  <link rel="icon" type="image/svg+xml" sizes="any" href="assets/bird-icon.svg?v=1">
+  <link rel="stylesheet" href="style.css?v=bird-logo">
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <a class="brand" href="./" aria-label="Crashout Cam home" data-i18n-aria="home"><span class="brand-mark" aria-hidden="true"><img src="assets/neutral.png" alt="" width="43" height="43"></span><span>CRASHOUT<span class="brand-sub">CAM</span></span></a>
+      <div class="header-note"><span class="tiny-dot"></span> A LITTLE CAMERA EXPERIMENT</div>
+      <button id="language" class="language-button" aria-label="切換為繁體中文" lang="zh-Hant">繁中</button>
+      <button id="fullscreen" class="icon-button" title="Fullscreen · F" aria-label="Enter fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H4v4m12-4h4v4M4 16v4h4m12-4v4h-4"/></svg></button>
+    </header>
+    <main>
+      <section class="intro">
+        <div><div class="eyebrow">FACE TO FACE, BIRD TO BIRD.</div><h1><span class="headline-main" data-i18n="headline">Mentally?</span><br><span data-i18n="headlineSecond">This bird.</span></h1></div>
+        <div class="session"><button id="camera-toggle" class="primary-button" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="12" height="12" rx="3"/><path d="m15 10 6-3v10l-6-3"/></svg><span>Start camera</span><span class="button-arrow">↗</span></button><span class="local-note" data-i18n="privacy">On-device only. Your camera stays yours.</span></div>
+      </section>
+      <div class="stage-head"><span><span id="status-dot" class="status-dot"></span><span id="status" role="status" aria-live="polite">Getting ready</span></span><span class="stage-note">NO CAPTIONS. JUST REACTIONS.</span></div>
+      <section id="stage" class="stage" aria-label="Camera and reaction" data-i18n-aria="stage">
+        <div class="camera-panel">
+          <video id="camera" autoplay muted playsinline aria-label="Live camera feed" data-i18n-aria="camera"></video>
+          <div id="camera-placeholder" class="camera-placeholder"><div class="viewfinder"><svg viewBox="0 0 100 100" aria-hidden="true"><path class="corners" d="M25 8H8v17m67-17h17v17M8 75v17h17m67-17v17H75"/><ellipse cx="50" cy="43" rx="16" ry="20"/><path d="M22 81c3-19 53-19 56 0"/></svg></div><p data-i18n="placeholder">Your face goes here</p><span data-i18n="placeholderHint">Start your camera, or try a reaction below.</span></div>
+        </div>
+        <div class="meme-panel"><img id="meme" src="assets/neutral.png" alt="Neutral" fetchpriority="high"></div>
+      </section>
+      <p id="error" role="alert" hidden></p>
+      <section class="reactions" aria-label="Five reactions. One bird." data-i18n-aria="reactions">
+        <div class="section-heading"><h2 data-i18n="reactions">Five reactions. One bird.</h2><span id="preview-hint">Click to preview · 1 — 5</span></div>
+        <div id="reaction-list" class="reaction-list"></div>
+      </section>
+      <details class="settings"><summary><span data-i18n="settings">Fine-tune reactions</span><span class="settings-plus">＋</span></summary><div class="settings-body"><label><span data-i18n="smileSensitivity">Smile sensitivity</span> <input id="smile" type="range" min="20" max="80" step="1" value="52"><output id="smile-value">52</output></label><label><span data-i18n="jawSensitivity">Mouth sensitivity</span> <input id="jaw" type="range" min="20" max="80" step="1" value="58"><output id="jaw-value">58</output></label><label><span data-i18n="switchDelay">Switch delay</span> <select id="hold"><option value="0" selected>Instant</option><option value="150">0.15 s</option><option value="300">0.30 s</option><option value="500">0.50 s</option></select></label><button id="reset" class="reset-button" data-i18n="reset">Reset defaults</button><p data-i18n="guidance">Face the camera and keep your hands in view. Two hands by your head take priority, then one hand by your ear.</p></div></details>
+    </main>
+    <footer><span>MADE FOR ABSOLUTELY NO REASON.</span><span><span data-i18n="footer">Your camera. Your bird.</span><span class="footer-dot">●</span></span></footer>
+  </div>
+  <script type="module" src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+{
+  "classification": [
+    {
+      "name": "neutral face",
+      "expected": "neutral"
+    },
+    {
+      "name": "missing face ignores hands",
+      "missing": true,
+      "hands": [
+        [
+          0.28,
+          0.4
+        ],
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "expected": null
+    },
+    {
+      "name": "wide mouth",
+      "scores": {
+        "jawOpen": 0.8
+      },
+      "expected": "shock"
+    },
+    {
+      "name": "smile",
+      "scores": {
+        "mouthSmileLeft": 0.8,
+        "mouthSmileRight": 0.7
+      },
+      "expected": "happy"
+    },
+    {
+      "name": "one sided weak smile",
+      "scores": {
+        "mouthSmileLeft": 0.7,
+        "mouthSmileRight": 0.1
+      },
+      "expected": "neutral"
+    },
+    {
+      "name": "mouth wins over smile",
+      "scores": {
+        "jawOpen": 0.8,
+        "mouthSmileLeft": 0.9,
+        "mouthSmileRight": 0.9
+      },
+      "expected": "shock"
+    },
+    {
+      "name": "left ear",
+      "hands": [
+        [
+          0.28,
+          0.4
+        ]
+      ],
+      "expected": "listen"
+    },
+    {
+      "name": "right ear",
+      "hands": [
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "expected": "listen"
+    },
+    {
+      "name": "both sides",
+      "hands": [
+        [
+          0.28,
+          0.4
+        ],
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "expected": "overload"
+    },
+    {
+      "name": "hands override expressions",
+      "hands": [
+        [
+          0.28,
+          0.4
+        ],
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "scores": {
+        "jawOpen": 0.9,
+        "mouthSmileLeft": 0.9,
+        "mouthSmileRight": 0.9
+      },
+      "expected": "overload"
+    },
+    {
+      "name": "one hand overrides expression",
+      "hands": [
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "scores": {
+        "jawOpen": 0.9
+      },
+      "expected": "listen"
+    },
+    {
+      "name": "two hands on same side are not head hold",
+      "hands": [
+        [
+          0.28,
+          0.4
+        ],
+        [
+          0.27,
+          0.45
+        ]
+      ],
+      "expected": "listen"
+    },
+    {
+      "name": "hands below face are ignored",
+      "hands": [
+        [
+          0.28,
+          0.95
+        ],
+        [
+          0.72,
+          0.95
+        ]
+      ],
+      "expected": "neutral"
+    },
+    {
+      "name": "small distant face still works",
+      "scale": 0.4,
+      "hands": [
+        [
+          0.28,
+          0.4
+        ],
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "expected": "overload"
+    },
+    {
+      "name": "large close face still works",
+      "scale": 1.5,
+      "hands": [
+        [
+          0.28,
+          0.4
+        ]
+      ],
+      "expected": "listen"
+    },
+    {
+      "name": "portrait aspect",
+      "aspect": 0.75,
+      "hands": [
+        [
+          0.28,
+          0.4
+        ],
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "expected": "overload"
+    },
+    {
+      "name": "mirrored face landmark order",
+      "mirrorFace": true,
+      "hands": [
+        [
+          0.28,
+          0.4
+        ],
+        [
+          0.72,
+          0.4
+        ]
+      ],
+      "expected": "overload"
+    },
+    {
+      "name": "jaw hysteresis",
+      "previous": "shock",
+      "scores": {
+        "jawOpen": 0.35
+      },
+      "expected": "shock"
+    },
+    {
+      "name": "same jaw does not trigger from neutral",
+      "scores": {
+        "jawOpen": 0.35
+      },
+      "expected": "neutral"
+    },
+    {
+      "name": "jaw releases",
+      "previous": "shock",
+      "scores": {
+        "jawOpen": 0.2
+      },
+      "expected": "neutral"
+    },
+    {
+      "name": "smile hysteresis",
+      "previous": "happy",
+      "scores": {
+        "mouthSmileLeft": 0.4,
+        "mouthSmileRight": 0.4
+      },
+      "expected": "happy"
+    },
+    {
+      "name": "tiny face ignored",
+      "scale": 0.01,
+      "expected": null
+    }
+  ],
+  "temporal": [
+    {
+      "name": "short blip never switches",
+      "sequence": [
+        [
+          "shock",
+          0,
+          "neutral"
+        ],
+        [
+          "shock",
+          150,
+          "neutral"
+        ],
+        [
+          "neutral",
+          250,
+          "neutral"
+        ],
+        [
+          "neutral",
+          700,
+          "neutral"
+        ]
+      ]
+    },
+    {
+      "name": "sustained signal switches after hold",
+      "sequence": [
+        [
+          "happy",
+          0,
+          "neutral"
+        ],
+        [
+          "happy",
+          299,
+          "neutral"
+        ],
+        [
+          "happy",
+          300,
+          "happy"
+        ]
+      ]
+    },
+    {
+      "name": "new candidate restarts hold",
+      "sequence": [
+        [
+          "happy",
+          0,
+          "neutral"
+        ],
+        [
+          "shock",
+          250,
+          "neutral"
+        ],
+        [
+          "shock",
+          400,
+          "neutral"
+        ],
+        [
+          "shock",
+          550,
+          "shock"
+        ]
+      ]
+    },
+    {
+      "name": "brief face dropout retains state",
+      "sequence": [
+        [
+          "listen",
+          0,
+          "neutral"
+        ],
+        [
+          "listen",
+          300,
+          "listen"
+        ],
+        [
+          null,
+          400,
+          "listen"
+        ],
+        [
+          null,
+          1000,
+          "listen"
+        ],
+        [
+          "listen",
+          1050,
+          "listen"
+        ]
+      ]
+    },
+    {
+      "name": "long face dropout resets to neutral",
+      "sequence": [
+        [
+          "overload",
+          0,
+          "neutral"
+        ],
+        [
+          "overload",
+          300,
+          "overload"
+        ],
+        [
+          null,
+          400,
+          "overload"
+        ],
+        [
+          null,
+          1100,
+          "neutral"
+        ]
+      ]
+    },
+    {
+      "name": "dropout cancels pending gesture",
+      "sequence": [
+        [
+          "happy",
+          0,
+          "neutral"
+        ],
+        [
+          null,
+          200,
+          "neutral"
+        ],
+        [
+          "happy",
+          300,
+          "neutral"
+        ],
+        [
+          "happy",
+          400,
+          "neutral"
+        ],
+        [
+          "happy",
+          600,
+          "happy"
+        ]
+      ]
+    },
+    {
+      "name": "instant mode switches on the first result, including release",
+      "holdMs": 0,
+      "sequence": [
+        [
+          "listen",
+          0,
+          "listen"
+        ],
+        [
+          "overload",
+          33,
+          "overload"
+        ],
+        [
+          "shock",
+          66,
+          "shock"
+        ],
+        [
+          "happy",
+          99,
+          "happy"
+        ],
+        [
+          "neutral",
+          132,
+          "neutral"
+        ]
+      ]
+    }
+  ]
+}
