@@ -33,7 +33,7 @@ Open **http://localhost:4173**, click **Start camera**, and allow camera access.
 - Use a current Chrome, Edge, or Safari. Mobile fullscreen availability varies by browser.
 - Remote hosting requires **HTTPS**. `file://` and ordinary LAN HTTP cannot request camera access.
 
-Camera frames are processed in device memory. No video uploads, recordings, microphone access, or analytics. The site serves its own images, models, and WebAssembly runtime. Inference runs in a Web Worker, capped at 30 FPS; actual speed depends on the device.
+Camera frames are processed in device memory. No video uploads, recordings, microphone access, or analytics. The site serves its own images, models, and WebAssembly runtime. Inference uses a Web Worker where supported. iPhone/iPad use a main-thread canvas compatibility path, which is also used if worker initialization fails. Both paths are capped at 30 FPS; actual speed depends on the device.
 
 ## Python
 

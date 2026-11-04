@@ -2,6 +2,7 @@ import { translations } from './i18n.js';
 import { SETTINGS_KEY, restoreSettings } from './settings.js';
 const $ = id => document.getElementById(id);
 const video = $('camera'), button = $('camera-toggle');
+let detector;
 let defaults, config, stream, worker, running = false, starting = false, busy = false;
 let epoch = 0, raf = 0, lastSent = 0, lastVideoTime = -1, current = 'neutral';
 let initTimer, frameTimer, rejectInit;
@@ -48,6 +49,7 @@ function stop() {
   clearTimeout(initTimer); clearTimeout(frameTimer);
   if (rejectInit) { rejectInit(new DOMException('Cancelled', 'AbortError')); rejectInit = null; }
   worker?.terminate(); worker = null;
+  detector?.close(); detector = null;
   stream?.getTracks().forEach(t => t.stop()); stream = null;
   video.pause(); video.srcObject = null;
   video.classList.remove('active');
@@ -74,30 +76,50 @@ async function start() {
     if (token !== epoch) return;
     video.classList.add('active'); $('camera-placeholder').hidden = true;
     status('loading');
-    worker = new Worker(new URL('./vision-worker.js', import.meta.url), { type: 'module' });
-    await new Promise((resolve, reject) => {
-      rejectInit = reject;
-      initTimer = setTimeout(() => reject({ messageKey: 'loadingError' }), 90000);
-      worker.onerror = event => reject(new Error(event.message));
-      worker.onmessage = ({ data }) => {
-        if (data.type === 'ready') resolve();
-        if (data.type === 'error') reject(new Error(data.message));
-      };
-      worker.postMessage({ type: 'init', config });
-    });
-    clearTimeout(initTimer); rejectInit = null;
+    const { createDetector, preferMainThread } = await import('./vision-runtime.js');
     if (token !== epoch) return;
-    worker.postMessage({ type: 'config', config });
-    worker.onerror = event => { if (token === epoch) fail(new Error(event.message)); };
-    worker.onmessage = ({ data }) => {
-      if (token !== epoch) return;
-      if (data.type === 'error') { fail(new Error(data.message)); return; }
-      if (data.type === 'result') {
-        clearTimeout(frameTimer); busy = false;
-        if (data.state !== current) show(data.state);
-        status(data.faceFound ? 'live' : 'noFace', data.faceFound);
+    let useMain = preferMainThread() || typeof Worker === 'undefined' || typeof createImageBitmap === 'undefined';
+    if (!useMain) {
+      try {
+        worker = new Worker(new URL('./vision-worker.js', import.meta.url), { type: 'module' });
+        await new Promise((resolve, reject) => {
+          rejectInit = reject;
+          initTimer = setTimeout(() => reject({ messageKey: 'loadingError' }), 90000);
+          worker.onerror = event => reject(new Error(event.message));
+          worker.onmessage = ({ data }) => {
+            if (data.type === 'ready') resolve();
+            if (data.type === 'error') reject(new Error(data.message));
+          };
+          worker.postMessage({ type: 'init', config });
+        });
+        clearTimeout(initTimer); rejectInit = null;
+        if (token !== epoch) return;
+      } catch (error) {
+        clearTimeout(initTimer); rejectInit = null;
+        if (token !== epoch) return;
+        console.warn('Background detection unavailable; using camera compatibility mode.', error);
+        worker?.terminate(); worker = null;
+        useMain = true;
       }
-    };
+    }
+    if (useMain) {
+      const acquiredDetector = await createDetector(config);
+      if (token !== epoch) { acquiredDetector.close(); return; }
+      detector = acquiredDetector;
+      detector.configure(config);
+    } else {
+      worker.postMessage({ type: 'config', config });
+      worker.onerror = event => { if (token === epoch) fail(new Error(event.message)); };
+      worker.onmessage = ({ data }) => {
+        if (token !== epoch) return;
+        if (data.type === 'error') { fail(new Error(data.message)); return; }
+        if (data.type === 'result') {
+          clearTimeout(frameTimer); busy = false;
+          if (data.state !== current) show(data.state);
+          status(data.faceFound ? 'live' : 'noFace', data.faceFound);
+        }
+      };
+    }
     starting = false; running = true; show('neutral'); updateButton();
     status('live', true);
     raf = requestAnimationFrame(frame);
@@ -110,6 +132,13 @@ async function frame(now) {
   const token = epoch;
   busy = true; lastSent = now; lastVideoTime = video.currentTime;
   try {
+    if (detector) {
+      const result = detector.detect(video, Math.round(now), video.videoWidth / video.videoHeight);
+      busy = false;
+      if (result.state !== current) show(result.state);
+      status(result.faceFound ? 'live' : 'noFace', result.faceFound);
+      return;
+    }
     const bitmap = await createImageBitmap(video);
     if (!running || token !== epoch) { bitmap.close(); return; }
     frameTimer = setTimeout(() => fail({ messageKey: 'frameError' }), 15000);
@@ -125,7 +154,10 @@ function applySettings() {
   config.jawThreshold = (100 - Number($('jaw').value)) / 100;
   config.holdMs = Number($('hold').value);
   $('smile-value').value = $('smile').value; $('jaw-value').value = $('jaw').value;
-  if (running) worker.postMessage({ type: 'config', config });
+  if (running) {
+    if (detector) detector.configure(config);
+    else worker.postMessage({ type: 'config', config });
+  }
   try { localStorage.setItem(SETTINGS_KEY, JSON.stringify({ smileThreshold: config.smileThreshold, jawThreshold: config.jawThreshold, holdMs: config.holdMs })); } catch {}
 }
 async function fullscreen() {

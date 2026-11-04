@@ -34,7 +34,7 @@ python3 -m http.server 4173 --bind 127.0.0.1 --directory dist
 - 建議使用新版 Chrome、Edge 或 Safari。手機的全螢幕支援依瀏覽器而異。
 - 分享部署需 HTTPS；`file://` 和一般區網 HTTP 網址不支援鏡頭權限。
 
-所有模型、WebAssembly 和圖片都由這個網站直接提供；影像只在本機記憶體處理，不上傳、不錄影，也不使用麥克風。推論在 Web Worker 中執行，預設最高 30 FPS；實際速度依裝置而異。
+所有模型、WebAssembly 和圖片都由這個網站直接提供；影像只在本機記憶體處理，不上傳、不錄影，也不使用麥克風。支援的裝置會在 Web Worker 中執行推論；iPhone／iPad 使用主執行緒的 Canvas 相容模式，Worker 初始化失敗時也會自動改用此模式。兩種模式最高皆為 30 FPS，實際速度依裝置而異。
 
 ## Python 本機版
 

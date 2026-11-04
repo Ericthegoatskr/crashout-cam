@@ -7,6 +7,15 @@ async function until(test, timeout = 60000) { const start = Date.now(); while (!
 try {
   await until(() => frame.contentDocument?.querySelectorAll('.reaction').length === 5);
   const win = frame.contentWindow, doc = frame.contentDocument;
+  const mode = new URL(location.href).searchParams.get('mode');
+  if (mode === 'ios') {
+    Object.defineProperty(win.navigator, 'userAgent', { configurable: true, value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 CriOS/130.0 Mobile/15E148 Safari/604.1' });
+    win.Worker = class { constructor() { throw Error('iOS mode must bypass Worker'); } };
+    win.createImageBitmap = () => { throw Error('iOS mode must use video directly'); };
+  } else if (mode === 'fallback') {
+    win.Worker = class { constructor() { throw Error('Synthetic worker init failure'); } };
+  }
+
   if (doc.documentElement.lang !== 'en') doc.querySelector('#language').click();
   check(doc.documentElement.lang === 'en', 'English interface');
   doc.querySelector('#language').click();
